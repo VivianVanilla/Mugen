@@ -1,9 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import HiraganaTable from './components/HiraganaTable'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(Number(localStorage.getItem('count')))
+
+  useEffect(() => {
+    localStorage.setItem('count', count);
+  }, [count]);
 
   return (
     <>
