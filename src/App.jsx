@@ -1,28 +1,23 @@
 import { useState, useEffect } from 'react'
-import HiraganaTable from './components/HiraganaTable' 
-import ExModal from './components/examplemodal'
+import HiraganaTable from './components/HiraganaTable'
+import QuizModal from './components/QuizModal'
+import { CHARS, VOWELS } from './data/hiragana'
 import './App.css'
-
-
-const CHARS = [
-  'あ', 'い', 'う', 'え', 'お'
-]
-
 
 function App() {
   const [count, setCount] = useState(Number(localStorage.getItem('count')))
+  const [quizEntry, setQuizEntry] = useState(null)
 
   useEffect(() => {
     localStorage.setItem('count', count);
-  }, [count]);
+  }, [count]); 
 
+  {/* Start Quiz, Sleects the CHAR and the answer from hiaranagana.js (Moved there from here, incase of wanting to expand list.) */}
 
-  function randIndex(arr) {
-    return Math.floor(Math.random()*arr.length);
+  const startQuiz = () => {
+    const i = Math.floor(Math.random() * CHARS.length)
+    setQuizEntry({ char: CHARS[i], answer: VOWELS[i] })
   }
-
-
-
 
   return (
     <>
@@ -31,39 +26,39 @@ function App() {
         </div>
         <div>
           <h1>Mugen</h1>
-          <ExModal />
-        </div>
+        </div> 
+
+        {/* Quiz + Counter Button */}
+
         <button
           type="button"
           className="counter"
-          onClick={() => setCount((count) => count + 1)}
+          onClick={startQuiz}
         >
-           あ {count}
+           <div className="ticks"></div>
+            {count}
         </button>
+
+
       </section>
 
+      {/* Where the Quiz modal actually populates once turned on. */}
+ <div className="ticks"></div>
+      <QuizModal
+        isOpen={quizEntry !== null}
+        entry={quizEntry}
+        onClose={() => setQuizEntry(null)}
+        onCorrect={() => setCount((c) => c + 1)}
+      />
+
       <div className="ticks"></div>
       <div className="ticks"></div>
-
-
-
-
 
       <div id="playArea" className="flex justify-between">
-        <div id="quiz" className="">
-          <h1>Quiz</h1>
-
-          <h2>{ CHARS[randIndex(CHARS)] }</h2>
-          <input type="text" className="bg-amber-50" />
-        </div>
-
         <div id="upgrades">
           <h1>Upgrades</h1>
         </div>
       </div>
-
-
-
 
       <div className="ticks"></div>
       <div className="ticks"></div>
