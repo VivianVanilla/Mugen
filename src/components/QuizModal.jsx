@@ -1,15 +1,10 @@
 import { useState, useEffect } from 'react';
-import { CHARS, VOWELS } from '../data/hiragana'
+import { generateQuiz } from '../data/hiragana'
 import Modal from 'react-modal';
 import './../App.css'
 
 
-const startQuiz = () => {
-  const i = Math.floor(Math.random() * CHARS.length);
-  return { char: CHARS[i], answer: VOWELS[i] };
-}
-
-export default function QuizModal({ isOpen, entry, onClose, onCorrect }) {
+export default function QuizModal({ isOpen, onCorrect, onClose, quizEntry, setQuizEntry }) {
   const [answer, setAnswer] = useState(''); 
   const [feedback, setFeedback] = useState('');
 
@@ -18,26 +13,23 @@ export default function QuizModal({ isOpen, entry, onClose, onCorrect }) {
       setAnswer(''); // Reset the answer field when the modal opens
       setFeedback(''); // Reset Feedback
     }
-  }, [isOpen, entry]);
+  }, [isOpen, quizEntry]);
 
-  if (!entry) return null; // If entry is null, don't render the modal. (Prevents a crash)
+  if (!isOpen) return null; // If entry is null, don't render the modal. (Prevents a crash)
 
   const handleSubmit = (e) => {
     let question = document.getElementById('question');
-    let input    = document.getElementById('inputTarget');
 
     e.preventDefault(); //prevents the form from submitting.
     
-    console.log(answer, entry.answer);
+    console.log(answer, quizEntry.answer);
 
-    if (answer.trim().toLowerCase() === entry.answer) {
+    if (answer.trim().toLowerCase() === quizEntry.answer) {
       onCorrect();
       // onClose();
-      entry = startQuiz();
 
-      setAnswer(entry.answer);
-      console.log(answer);
-      question.innerText = entry.char;
+      setQuizEntry(generateQuiz());
+      question.innerText = quizEntry.char;
     } else {
       setFeedback('ermmm NO NO NO NO STAY IN CHARACYER'); // Make sure the PLayer knows they are failing.
     }
@@ -49,12 +41,11 @@ export default function QuizModal({ isOpen, entry, onClose, onCorrect }) {
   return (
     <Modal
       isOpen={isOpen}
-      onRequestClose={onClose}
       className="bg-green-100 rounded-xl shadow-2xl w-1/2 p-6 mx-4 relative outline-none"
       overlayClassName="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
     >
       <span className="text-2xl font-bold text-gray-900 mb-2">ANSWER or DIE</span>
-      <p id="question" className="text-6xl text-center text-gray-900 my-4">{entry.char}</p>
+      <p id="question" className="text-6xl text-center text-gray-900 my-4">{quizEntry.char}</p>
       <form onSubmit={handleSubmit}>
         
         {/**Input field**/}

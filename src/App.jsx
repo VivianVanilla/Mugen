@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react'
 import HiraganaTable from './components/HiraganaTable'
 import QuizModal from './components/QuizModal'
-import { CHARS, VOWELS } from './data/hiragana'
+import { generateQuiz } from './data/hiragana'
 import './App.css'
+
+
 
 function App() {
   const [count, setCount] = useState(Number(localStorage.getItem('count')))
-  const [quizEntry, setQuizEntry] = useState(null)
+  const [quizEntry, setQuizEntry] = useState(generateQuiz());
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('count', count);
@@ -14,10 +17,7 @@ function App() {
 
   {/* Start Quiz, Sleects the CHAR and the answer from hiaranagana.js (Moved there from here, incase of wanting to expand list.) */}
 
-  const startQuiz = () => {
-    const i = Math.floor(Math.random() * CHARS.length)
-    setQuizEntry({ char: CHARS[i], answer: VOWELS[i] })
-  }
+  
 
   return (
     <>
@@ -33,7 +33,7 @@ function App() {
         <button
           type="button"
           className="counter"
-          onClick={startQuiz}
+          onClick={() => setIsOpen(true)}
         >
            <div className="ticks"></div>
             {count}
@@ -45,10 +45,11 @@ function App() {
       {/* Where the Quiz modal actually populates once turned on. */}
  <div className="ticks"></div>
       <QuizModal
-        isOpen={quizEntry !== null}
-        entry={quizEntry}
-        onClose={() => setQuizEntry(null)}
+        isOpen={isOpen}
         onCorrect={() => setCount((c) => c + 1)}
+        onClose={() => setIsOpen(false)}
+        quizEntry={quizEntry}
+        setQuizEntry={setQuizEntry}
       />
 
       <div className="ticks"></div>
