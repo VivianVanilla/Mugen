@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import HiraganaTable from './components/HiraganaTable'
+import HiraganaTable from './components/HiraganaTable' 
+import ExModal from './components/examplemodal'
 import './App.css'
 
 function App() {
@@ -16,9 +17,7 @@ function App() {
         </div>
         <div>
           <h1>Mugen</h1>
-          <p>
-           
-          </p>
+          <ExModal />
         </div>
         <button
           type="button"
