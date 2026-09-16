@@ -193,9 +193,15 @@
 
 
 .flashFade {
-  transition: background-color 400ms ease;
+  transition: background-color 800ms ease;
 }
 
 .greenFlash {
   background-color: greenyellow;
+  transition: none;
+}
+
+.redFlash {
+  background-color: red;
+  transition: none;
 }

@@ -17,6 +17,9 @@ function App() {
   const [quizEntry, setQuizEntry] = useState(null) // Current question ({char, answer}) for that quiz.
   const [isOpen, setIsOpen] = useState(false) // Whether the quiz modal is showing.
 
+  const [quizColor, setQuizColor] = useState('') // determines background of quiz modal
+  const [quizColorReset, setQuizColorReset] = useState(null) // variable to hold timeout to reset color
+
   useEffect(() => {
     localStorage.setItem('count', count) // Save currency any time it changes.
   }, [count])
@@ -42,11 +45,33 @@ function App() {
     setUnlockedIds((ids) => [...ids, quiz.id]) // Add this quiz to the unlocked list.
   }
 
+  const changeQuizModalBackground = (className) => {
+    // am i insane
+    setQuizColor(className); // set background of quizmodal to green
+
+    if (quizColorReset) {
+      clearTimeout(quizColorReset);
+      // if there is already a timeout active, i guess if the user is getting
+      // it correct at a faster rate than 10ms, this clears the old one so
+      // multiple do not run at the same time
+    }
+    setQuizColorReset(setTimeout(() => {
+      setQuizColor('');
+      setQuizColorReset(null);
+    }, 10)); // removes correct background color after 10ms, with 800ms fade
+  }
+
   // Called by QuizModal when the player answers a question correctly.
   const handleCorrect = () => {
     const quiz = QUIZZES.find((q) => q.id === activeQuizId) // The quiz just answered.
     setCount((c) => c + quiz.reward) // Pay out that quiz's flat reward.
     setQuizEntry(generateEntry(quiz)) // Load the next question for the quiz that's still open.
+    changeQuizModalBackground('greenFlash'); // flashes green on quiz modal
+  }
+
+  // Called by QuizModal when the player answers a question incorrectly
+  const handleIncorrect = () => {
+    changeQuizModalBackground('redFlash'); // flashes red on quiz modal
   }
 
   const activeQuiz = QUIZZES.find((q) => q.id === activeQuizId) // Full object for the open quiz (or undefined).
@@ -73,9 +98,11 @@ function App() {
       <QuizModal
         isOpen={isOpen}
         onCorrect={handleCorrect}
+        onIncorrect={handleIncorrect}
         onClose={() => setIsOpen(false)}
         quiz={activeQuiz}
         quizEntry={quizEntry}
+        quizColor={quizColor}
       />
 
       <div className="ticks"></div>
