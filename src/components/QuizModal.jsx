@@ -34,7 +34,7 @@ export default function QuizModal({ isOpen, quiz, quizEntry, onCorrect, onClose 
   return (
     <Modal
       isOpen={isOpen}
-      className="bg-green-100 rounded-xl shadow-2xl w-1/2 p-6 mx-4 relative outline-none"
+      className="bg-green-100 rounded-xl shadow-2xl w-1/2 p-6 mx-4 relative outline-none flashFade"
       overlayClassName="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
     >
       <span className="text-2xl font-bold text-gray-900 mb-2">{quiz?.name ?? 'Quiz'}</span>
