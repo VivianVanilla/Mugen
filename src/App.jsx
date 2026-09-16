@@ -146,7 +146,9 @@ function App() {
 
       {/* The Snake mini-game */}
       <section id="snake-section">
-        <Snake />
+        <Snake
+          addPoints={(x) => setCount((y) => y + x)}
+        />
       </section>
 
       <div className="ticks"></div>
