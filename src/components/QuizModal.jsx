@@ -3,9 +3,11 @@ import Modal from 'react-modal';
 import { ComboDisplay } from './ComboLogic'
 import './../App.css'
 
-export default function QuizModal({ isOpen, quiz, quizEntry, onCorrect, onIncorrect, onClose, comboCount = 0, comboBonus = 0 }) {
-  const [answer, setAnswer] = useState('');
-  const [feedback, setFeedback] = useState(''); 
+
+// onCorrect(): called when the player answers right.
+export default function QuizModal({ isOpen, quiz, quizEntry, onCorrect, onIncorrect, onClose, quizColor, comboCount = 0, comboBonus = 0 }) {
+  const [answer, setAnswer] = useState(''); // What the player has typed so far.
+  const [feedback, setFeedback] = useState(''); // Error message shown after a wrong guess.
 
   useEffect(() => {
     if (isOpen) {
@@ -22,8 +24,8 @@ export default function QuizModal({ isOpen, quiz, quizEntry, onCorrect, onIncorr
     if (answer.trim().toLowerCase() === quizEntry.answer) {
       onCorrect(); // Right answer.
     } else {
+      onIncorrect?.(); // Wrong answer.
       setFeedback('ermmm NO NO NO NO STAY IN CHARACYER'); // Make sure the PLayer knows they are failing.
-      onIncorrect?.(); 
     }
 
     setAnswer('');
@@ -33,7 +35,7 @@ export default function QuizModal({ isOpen, quiz, quizEntry, onCorrect, onIncorr
   return (
     <Modal
       isOpen={isOpen}
-      className="bg-green-100 rounded-xl shadow-2xl w-1/2 p-6 mx-4 relative outline-none"
+      className={`bg-green-100 rounded-xl shadow-2xl w-1/2 p-6 mx-4 relative outline-none flashFade ${quizColor}`}
       overlayClassName="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
     >
       <span className="text-2xl font-bold text-gray-900 mb-2">{quiz?.name ?? 'Quiz'}</span>
