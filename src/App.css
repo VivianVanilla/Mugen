@@ -190,3 +190,18 @@
     border-right-color: var(--border);
   }
 }
+
+
+.flashFade {
+  transition: background-color 800ms ease;
+}
+
+.greenFlash {
+  background-color: greenyellow;
+  transition: none;
+}
+
+.redFlash {
+  background-color: red;
+  transition: none;
+}
