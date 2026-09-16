@@ -123,7 +123,7 @@ function createRound(characterPool, snakeCells) {
   return { targetSound: target.answer, options }
 }
 
-export default function Snake() {
+export default function Snake({ addPoints }) {
   // 'select' = choosing a difficulty, 'playing' = game running,
   // 'dead' = lost (ate the wrong character / hit a wall / hit self),
   // 'won' = filled almost the whole board (very rare, but handled cleanly).
@@ -206,6 +206,7 @@ export default function Snake() {
       if (hitWall) {
         setStatus('dead')
         setDeathReason('LOL YOU DIED')
+        addPoints(points);
         return
       }
 
@@ -213,6 +214,7 @@ export default function Snake() {
       const hitSelf = snake.some((segment) => segment.x === newHead.x && segment.y === newHead.y)
       if (hitSelf) {
         setStatus('dead')
+        addPoints(points);
         setDeathReason('LOL YOU DIED BUT TO YOURSelf. Wait thats sad do you need to talk to someone?')
         return
       }
@@ -225,7 +227,7 @@ export default function Snake() {
         const grownSnake = [newHead, ...snake]
         setSnake(grownSnake)
 
-        const bonus = combo.registerCorrect() /
+        const bonus = combo.registerCorrect() // updates combo
         setPoints((previousPoints) => previousPoints + 1 + bonus)
 
         const emptyCells = getEmptyCells(grownSnake)
@@ -242,6 +244,7 @@ export default function Snake() {
        
         combo.registerIncorrect()
         setStatus('dead')
+        addPoints(points);
         setDeathReason(`${eaten.char} isn't "${targetSound}"! `)
       } else {
         // Normal step: add the new head, drop the old tail - length stays the same.
