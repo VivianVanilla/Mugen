@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import HiraganaTable from './components/HiraganaTable'
 import QuizModal from './components/QuizModal'
+import Snake from './components/snake'
+import { useCombo } from './components/ComboLogic'
 import { QUIZZES, generateEntry } from './data/hiragana'
 import './App.css'
 
@@ -10,12 +12,15 @@ function App() {
   // Which quiz ids the player has unlocked; loaded from localStorage, starting with just the free vowel quiz.
   const [unlockedIds, setUnlockedIds] = useState(() => {
     const saved = localStorage.getItem('unlockedIds') // Look for a previously-saved unlock list.
-    return saved ? JSON.parse(saved) : [QUIZZES[0].id] // Fall back to just the starter quiz.
+    return saved ? JSON.parse(saved) : [QUIZZES[0].ids] // Fall back to just the starter quiz.
   })
 
-  const [activeQuizId, setActiveQuizId] = useState(null) // id of the quiz currently open in the modal.
-  const [quizEntry, setQuizEntry] = useState(null) // Current question ({char, answer}) for that quiz.
+  const [activeQuizId, setActiveQuizId] = useState(null) 
+  const [quizEntry, setQuizEntry] = useState(null) 
   const [isOpen, setIsOpen] = useState(false) // Whether the quiz modal is showing.
+
+  // Tracks correct-answers-in-a-row for the typed quiz and turns that streak
+  const quizCombo = useCombo(1) // +1 bonus $ per combo step.
 
   useEffect(() => {
     localStorage.setItem('count', count) // Save currency any time it changes.
@@ -29,10 +34,11 @@ function App() {
 
   // Opens a given quiz id in the modal and loads its first question.
   const openQuiz = (id) => {
-    const quiz = QUIZZES.find((q) => q.id === id) // Look up the full quiz object by id.
-    setActiveQuizId(id) // Remember which quiz is active.
-    setQuizEntry(generateEntry(quiz)) // Pick its first question.
-    setIsOpen(true) // Show the modal.
+    const quiz = QUIZZES.find((q) => q.id === id) 
+    setActiveQuizId(id) 
+    setQuizEntry(generateEntry(quiz)) 
+    setIsOpen(true) 
+    quizCombo.reset() 
   }
 
   // Spends $ to unlock a quiz, if the player can afford its cost.
@@ -45,8 +51,14 @@ function App() {
   // Called by QuizModal when the player answers a question correctly.
   const handleCorrect = () => {
     const quiz = QUIZZES.find((q) => q.id === activeQuizId) // The quiz just answered.
-    setCount((c) => c + quiz.reward) // Pay out that quiz's flat reward.
+    const comboBonus = quizCombo.registerCorrect() // Extend the streak; get this answer's flat bonus back right away.
+    setCount((c) => c + quiz.reward + comboBonus) // Pay out the quiz's flat reward, plus the combo bonus on top.
     setQuizEntry(generateEntry(quiz)) // Load the next question for the quiz that's still open.
+  }
+
+ 
+  const handleIncorrect = () => {
+    quizCombo.registerIncorrect() 
   }
 
   const activeQuiz = QUIZZES.find((q) => q.id === activeQuizId) // Full object for the open quiz (or undefined).
@@ -60,7 +72,7 @@ function App() {
           <h1>Mugen</h1>
         </div>
 
-        {/* Currency display - no longer a button, since opening a quiz now happens from the quiz list below. */}
+        {/* Currency display */}
         <div className="counter">
            <div className="ticks"></div>
             ${count}
@@ -73,9 +85,12 @@ function App() {
       <QuizModal
         isOpen={isOpen}
         onCorrect={handleCorrect}
+        onIncorrect={handleIncorrect}
         onClose={() => setIsOpen(false)}
         quiz={activeQuiz}
         quizEntry={quizEntry}
+        comboCount={quizCombo.combo}
+        comboBonus={quizCombo.bonus}
       />
 
       <div className="ticks"></div>
@@ -84,7 +99,7 @@ function App() {
       <div id="playArea" className="flex justify-between">
         <div id="upgrades">
           <h1>Upgrades</h1>
-          {/* One row per quiz: unlocked ones can be played, locked ones show their cost. */}
+          {/* One row per quiz*/}
           {QUIZZES.map((quiz) => {
             const unlocked = unlockedIds.includes(quiz.id) // Has the player already bought this quiz?
             return (
@@ -104,6 +119,14 @@ function App() {
           })}
         </div>
       </div>
+
+      <div className="ticks"></div>
+      <div className="ticks"></div>
+
+      {/* The Snake mini-game */}
+      <section id="snake-section">
+        <Snake />
+      </section>
 
       <div className="ticks"></div>
       <div className="ticks"></div>
