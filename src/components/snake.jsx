@@ -3,7 +3,7 @@
 //   - Japan Snake: k, s, t, n rows                
 //   - Hebi:        every hiragana row                
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { QUIZZES } from '../data/hiragana'
 import { useCombo, ComboDisplay } from './ComboLogic'
 import './snake.css'
@@ -135,7 +135,7 @@ export default function Snake({ addPoints }) {
 
   const [snake, setSnake] = useState(START_SNAKE) // array of {x, y}, index 0 is the head.
   const [direction, setDirection] = useState(RIGHT) // direction actually being applied.
-  const [pendingDirection, setPendingDirection] = useState(RIGHT) // direction queued by the player, applied on the next tick.
+  const pendingDirection = useRef(RIGHT) // direction queued by the player, applied on the next tick.
 
   const [targetSound, setTargetSound] = useState('') // the romaji sound shown on the head right now.
   const [options, setOptions] = useState([]) // the 3 hiragana characters currently on the board.
@@ -156,7 +156,7 @@ export default function Snake({ addPoints }) {
     setPool(characterPool)
     setSnake(START_SNAKE)
     setDirection(RIGHT)
-    setPendingDirection(RIGHT)
+    pendingDirection.current = RIGHT;
     setPoints(0)
     setDeathReason('')
     setTargetSound(round.targetSound)
@@ -170,7 +170,7 @@ export default function Snake({ addPoints }) {
     if (status !== 'playing') return
     const isReversal = newDirection.x === -direction.x && newDirection.y === -direction.y
     if (isReversal) return
-    setPendingDirection(newDirection)
+    pendingDirection.current = newDirection
   }
 
   // Keyboard controls: arrow keys or WASD.
@@ -196,10 +196,10 @@ export default function Snake({ addPoints }) {
     const tickMs = DIFFICULTIES[difficulty].tickMs
 
     const intervalId = setInterval(() => {
-      setDirection(pendingDirection) 
+      setDirection(pendingDirection.current) 
 
       const head = snake[0]
-      const newHead = { x: head.x + pendingDirection.x, y: head.y + pendingDirection.y }
+      const newHead = { x: head.x + pendingDirection.current.x, y: head.y + pendingDirection.current.y }
 
       // 1. Did we hit a wall?
       const hitWall = newHead.x < 0 || newHead.x >= GRID_COLS || newHead.y < 0 || newHead.y >= GRID_ROWS
@@ -255,7 +255,7 @@ export default function Snake({ addPoints }) {
 
     return () => clearInterval(intervalId)
     
-  }, [status, difficulty, snake, pendingDirection, options, pool, targetSound])
+  }, [status, difficulty, snake, pendingDirection.current, options, pool, targetSound])
 
  
 
