@@ -179,8 +179,11 @@ export default function Snake({ addPoints }) {
     function handleKeyDown(event) {
         
       const newDirection = KEY_TO_DIRECTION[event.key]
+      if (status == 'playing') {
+        event.preventDefault();
+      }
+
       if (newDirection) { 
-        event.preventDefault()
         turn(newDirection)
     } 
     }
